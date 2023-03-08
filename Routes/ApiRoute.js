@@ -1,6 +1,6 @@
 const route = require("express").Router();
 const { controllerdata } = require('../database/Models');
-const controller = require("../Controller/ApiController");
+const controller = require('../Controller/Apicontroller');
 
 route.get("/Address",  controller.getAddressData);
 route.get("/Contactinfo",  controller.getContactinfoData);
