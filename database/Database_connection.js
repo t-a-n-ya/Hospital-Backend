@@ -14,11 +14,11 @@ const sequelize = new Sequelize('postgres://hospital_zmko_user:9XJzJMgYgTwCQSfVQ
 //   },
 // );
 
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log("Connection has been established successfully.");
-  })
-
+try {
+  await sequelize.authenticate();
+  console.log('Connection has been established successfully.');
+} catch (error) {
+  console.error('Unable to connect to the database:', error);
+}
 
 module.exports = sequelize;
