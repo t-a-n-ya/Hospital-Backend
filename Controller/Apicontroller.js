@@ -81,7 +81,7 @@ exports.GetPatientsData = async (req, res) => {
 
 
 exports.createform = async (req, res) => {
-  let { reg_no, p_name, p_Age, Phone_no, email, name, relationship, Tel_no,name2, relationship2, Tel_no2 } = req.body;
+  let { reg_no, p_name, p_Age, Phone_no, email, name, relationship, Tel_no, name2, relationship2, Tel_no2 } = req.body;
   try {
     let dataObj = await Patients.create({
       reg_no: reg_no,
@@ -94,14 +94,18 @@ exports.createform = async (req, res) => {
       patientId: reg_no
     })
     let dataObj3 = await Next_to_kin.bulkCreate([
-      {name: name,
-      relationship: relationship,
-      Tel_no: Tel_no,
-      reg_no_fk:reg_no},
-      {name:name2,
-      relationship:relationship2,
-      Tel_no:Tel_no2,
-      reg_no_fk:reg_no}
+      {
+        name: name,
+        relationship: relationship,
+        Tel_no: Tel_no,
+        reg_no_fk: reg_no
+      },
+      {
+        name: name2,
+        relationship: relationship2,
+        Tel_no: Tel_no2,
+        reg_no_fk: reg_no
+      }
     ])
     let dataobj4 = { ...dataObj, ...dataObj2, ...dataObj3 }
     res.json({
@@ -117,9 +121,10 @@ exports.createform = async (req, res) => {
 };
 
 exports.updateform = async (req, res) => {
-  const { regNo, pName, pAge, phoneNo, email, KinName, Kinrel, Kintel } = req.body.data.updatedData;
+  const { regNo, pName, pAge, phoneNo, email, kinName, kinrel, kintel, kinName2, kinrel2, kintel2 } = req.body.data.updatedData;
 
   try {
+    await Next_to_kin.destroy({ where: { reg_no_fk: regNo } })
     let data = await Patients.update(
       {
         p_name: pName,
@@ -133,30 +138,34 @@ exports.updateform = async (req, res) => {
     );
     let data2 = await Contactinfo.update(
       {
-        Phone_no:phoneNo,
-        email:email,
+        Phone_no: phoneNo,
+        email: email,
       },
       {
         where: {
-        patientId: regNo,
+          patientId: regNo,
         },
       }
     )
-    let data3 = await Next_to_kin.update(
-      {
-        name: KinName,
-        relationship:Kinrel,
-        Tel_no:Kintel,
-      },
-      {
-        where: {
-          reg_no_fk: reg_no,
+    let data3 = await Next_to_kin.bulkCreate(
+      [
+        {
+          name: kinName,
+          relationship: kinrel,
+          Tel_no: kintel,
+          reg_no_fk: regNo,
         },
-      }
-    )
-    let data4 = {...data, ...data2, ...data3}
+        {
+          name: kinName2,
+          relationship: kinrel2,
+          Tel_no: kintel2,
+          reg_no_fk: regNo,
+        },
+      ],
+    );
+    let data5 = { ...data, ...data2, ...data3 }
     res.json({
-      data: data4,
+      data: data5,
       status: RESPONSE_STATUS.OK,
       message: SUCCESS_RESPONSE.UPDATE_SUCCESSFULL,
     });
